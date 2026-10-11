@@ -1,0 +1,53 @@
+TuQR - PAGINA DE DEMOSTRACION LOCAL
+===================================
+
+QUE HAY EN ESTA CARPETA
+- INICIAR_TuQR.bat ........ Doble clic para encender todo (Windows).
+- INICIAR_TuQR_Mac.command  Lo mismo, para Mac.
+- index.html .............. El perfil que se abre al escanear la pulsera.
+- qr.html ................. Los codigos QR listos para escanear o imprimir.
+- perfiles.js ............. Los datos de cada pulsera (se editan con el Bloc de notas).
+- qrcode.js ............... Libreria para generar los QR (no tocar).
+
+COMO USARLO
+1. Copien la carpeta completa a la llave maya o a la computadora.
+2. Conecten la computadora y el celular a la MISMA red WiFi.
+3. Doble clic en INICIAR_TuQR.bat.
+   - La primera vez Windows puede preguntar por el Firewall: "Permitir acceso".
+   - Necesita Python instalado (gratis en python.org, marcar "Add Python to PATH").
+4. Se abre qr.html con 3 codigos: Esteban (Active), Rafael (Senior) y Mateo (Kids).
+5. Escaneen un QR con la camara del celular: se abre el perfil.
+6. La informacion privada se desbloquea con la contrasena 1234.
+
+IMPORTANTE
+- Los QR llevan la direccion IP de la computadora (por ejemplo 192.168.1.50).
+  Si cambian de red WiFi, la IP cambia: vuelvan a abrir qr.html e impriman de nuevo.
+- Mientras graban, la computadora tiene que estar encendida con la ventana abierta.
+- La contrasena es solo una simulacion para el video; no es seguridad real.
+- Usen SOLO datos inventados en perfiles.js. Nunca cedulas, direcciones ni telefonos reales.
+
+PARA GRABAR EN EL PARQUE (SIN WIFI)
+Opcion A: Activen el "punto de acceso" (hotspot) de un celular, conecten la
+          computadora a ese hotspot y escaneen con ese mismo celular.
+          Abran qr.html de nuevo para que los QR tomen la IP nueva.
+Opcion B: Graben en la casa la pantalla del celular abriendo el perfil y en la
+          edicion la insertan en la escena del parque.
+
+PARA CAMBIAR UN PERFIL
+Abran perfiles.js con el Bloc de notas, cambien el texto entre comillas y guarden.
+Recarguen la pagina en el celular.
+
+SIN COMPUTADORA: QUE EL QR ABRA LA PAGINA DESDE CUALQUIER CELULAR
+Suban esta misma carpeta a un hosting gratuito de paginas estaticas
+(por ejemplo Netlify o GitHub Pages). Despues abran qr.html desde la direccion
+de internet que les den: los QR se generan solos con esa direccion y funcionan
+en cualquier celular con datos, en cualquier lugar, sin la computadora.
+
+APP QUE CORRE EN EL MISMO CELULAR (app.html)
+app.html es un escaner TuQR: se abre en el celular, usa la camara (o una foto)
+para leer el QR de la pulsera y muestra el perfil ahi mismo. No necesita la
+computadora. Sus QR dicen "TUQR:esteban", "TUQR:rafael" y "TUQR:mateo" y estan
+en el boton "Ver codigos para las pulseras".
+Para que la camara en vivo funcione, app.html debe abrirse desde una direccion
+https (por ejemplo GitHub Pages o Netlify). Abierto de otra forma, usar
+"Tomar foto del codigo".

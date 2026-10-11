@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TuQR – Códigos QR para imprimir</title>
+<style>
+  * { box-sizing: border-box; }
+  body { margin:0; background:#EEF2F4; color:#12263A; font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  .wrap { max-width:1000px; margin:0 auto; padding:24px; }
+  h1 { margin:0 0 6px; font-size:28px; }
+  .sub { color:#4A5F70; margin:0 0 18px; }
+  .aviso { background:#FFE3DB; color:#8A2610; border-radius:12px; padding:14px 16px; font-weight:600; margin-bottom:16px; display:none; line-height:1.45; }
+  .barra { background:#fff; border-radius:12px; padding:14px 16px; display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-bottom:20px; }
+  .barra label { font-weight:700; }
+  .barra input { height:40px; border:2px solid #B9C4CC; border-radius:10px; padding:0 10px; font-size:15px; min-width:260px; font-family:inherit; }
+  .barra button { height:40px; border:0; border-radius:10px; padding:0 16px; font-weight:700; background:#0E7C7B; color:#fff; cursor:pointer; font-family:inherit; }
+  .barra button.sec { background:#12263A; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(260px, 1fr)); gap:18px; }
+  .tarjeta { background:#fff; border-radius:16px; padding:18px; text-align:center; }
+  .placa { display:inline-block; background:#DCE1E6; border:2px solid #A9B1BA; border-radius:16px; padding:10px 12px 8px; }
+  .placa b { display:block; font-size:14px; letter-spacing:-.5px; margin-bottom:4px; }
+  .placa .cod { font-family: ui-monospace, Consolas, monospace; font-size:11px; letter-spacing:2px; margin-top:4px; }
+  .placa svg { display:block; width:150px; height:150px; background:#fff; }
+  .modelo { font-weight:800; font-size:18px; margin-top:12px; }
+  .url { font-size:12px; color:#4A5F70; word-break:break-all; margin-top:4px; }
+  .url a { color:#0E7C7B; }
+  @media print {
+    body { background:#fff; }
+    .barra, .aviso, .sub, h1, .noprint { display:none !important; }
+    .tarjeta { border:1px dashed #B9C4CC; break-inside:avoid; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Códigos QR de las pulseras TuQR</h1>
+  <p class="sub">Escanee un código con el celular (conectado a la misma red WiFi que esta computadora) para abrir el perfil. Puede imprimir esta página para pegar los QR en las pulseras.</p>
+
+  <div class="aviso" id="aviso"></div>
+
+  <div class="barra">
+    <label for="base">Dirección del servidor:</label>
+    <input id="base" type="text">
+    <button id="aplicar">Actualizar QR</button>
+    <button class="sec" onclick="window.print()">Imprimir</button>
+  </div>
+
+  <div class="grid" id="grid"></div>
+</div>
+
+<script src="qrcode.js"></script>
+<script src="perfiles.js"></script>
+<script>
+(function () {
+  var baseInput = document.getElementById('base');
+  var aviso = document.getElementById('aviso');
+  var grid = document.getElementById('grid');
+
+  var guardada = new URLSearchParams(location.search).get('base');
+  var base = guardada || (location.protocol.indexOf('http') === 0 ? location.origin : '');
+  baseInput.value = base;
+
+  function revisar(b) {
+    var host = '';
+    try { host = new URL(b).hostname; } catch (e) {}
+    if (!b || location.protocol === 'file:') {
+      aviso.style.display = 'block';
+      aviso.textContent = 'Esta página se abrió directo como archivo. El celular no puede abrir archivos de la computadora: inicie TuQR con "INICIAR_TuQR.bat" o escriba arriba la dirección del servidor (por ejemplo http://192.168.1.50:8000).';
+    } else if (host === 'localhost' || host === '127.0.0.1') {
+      aviso.style.display = 'block';
+      aviso.textContent = 'La dirección usa "localhost", que solo funciona en esta computadora. Cámbiela por la IP de la computadora en la red WiFi (por ejemplo http://192.168.1.50:8000).';
+    } else {
+      aviso.style.display = 'none';
+    }
+  }
+
+  function dibujar() {
+    var b = baseInput.value.trim().replace(/\/+$/, '');
+    revisar(b);
+    grid.innerHTML = '';
+    Object.keys(PERFILES).forEach(function (id) {
+      var p = PERFILES[id];
+      var url = (b || '') + '/index.html?id=' + encodeURIComponent(id);
+      var qr = qrcode(0, 'M');
+      qr.addData(url);
+      qr.make();
+      var svg = qr.createSvgTag({ cellSize: 4, margin: 2, scalable: true });
+      var card = document.createElement('div');
+      card.className = 'tarjeta';
+      card.innerHTML =
+        '<div class="placa"><b>TuQR</b>' + svg + '<div class="cod">' + id.toUpperCase() + '</div></div>' +
+        '<div class="modelo" style="color:' + p.color + '">' + p.modelo + '</div>' +
+        '<div class="url noprint"><a href="' + url + '" target="_blank">' + url + '</a></div>';
+      grid.appendChild(card);
+    });
+  }
+
+  document.getElementById('aplicar').addEventListener('click', dibujar);
+  baseInput.addEventListener('keydown', function (e) { if (e.key === 'Enter') dibujar(); });
+  dibujar();
+})();
+</script>
+</body>
+</html>

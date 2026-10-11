@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TuQR – Perfil de emergencia</title>
+<style>
+  :root { --teal:#0E7C7B; --ink:#12263A; --muted:#4A5F70; --bg:#EEF2F4; --alert:#FFE3DB; --alertInk:#8A2610; }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink); font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  header { background:var(--teal); color:#fff; padding:16px 18px; display:flex; justify-content:space-between; align-items:center; }
+  .logo { font-weight:800; font-size:24px; letter-spacing:-1px; display:flex; align-items:center; }
+  .logo span.qr { background:#fff; color:var(--teal); border-radius:6px; padding:0 6px; margin-left:2px; }
+  header small { font-weight:700; font-size:13px; }
+  main { max-width:480px; margin:0 auto; padding:16px; display:flex; flex-direction:column; gap:14px; }
+  .card { background:#fff; border-radius:16px; padding:16px 18px; }
+  .aviso { background:var(--alert); color:var(--alertInk); border-radius:14px; padding:14px 16px; font-weight:600; line-height:1.4; }
+  .persona { display:flex; gap:14px; align-items:center; }
+  .avatar { width:58px; height:58px; border-radius:50%; color:#fff; font-weight:800; font-size:22px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+  .nombre { font-size:22px; font-weight:800; }
+  .sub { color:var(--muted); font-size:14px; }
+  .dato { padding:10px 0; border-bottom:1px solid #E3E8EC; }
+  .dato:last-child { border-bottom:0; }
+  .etq { font-size:12px; font-weight:800; color:var(--muted); text-transform:uppercase; letter-spacing:.5px; }
+  .val { font-size:17px; font-weight:700; margin-top:3px; }
+  .contacto { padding:8px 0 12px; }
+  .botones { display:flex; gap:10px; margin-top:8px; }
+  .btn { flex:1; display:flex; align-items:center; justify-content:center; height:50px; border-radius:12px; font-weight:800; font-size:16px; text-decoration:none; border:0; cursor:pointer; font-family:inherit; }
+  .llamar { background:var(--teal); color:#fff; }
+  .wa { background:#25D366; color:#fff; }
+  .privado { border:2px dashed #B9C4CC; }
+  .privado h2 { margin:0 0 6px; font-size:17px; }
+  .privado p { margin:0 0 12px; color:var(--muted); font-size:14px; line-height:1.4; }
+  .fila { display:flex; gap:8px; }
+  input[type=password] { flex:1; height:48px; border-radius:12px; border:2px solid #B9C4CC; padding:0 12px; font-size:16px; font-family:inherit; }
+  .entrar { background:var(--ink); color:#fff; flex:0 0 110px; }
+  .error { color:#B42318; font-weight:700; font-size:14px; margin-top:8px; display:none; }
+  .oculto { display:none; }
+  footer { text-align:center; color:var(--muted); font-size:12px; padding:8px 0 24px; }
+  .noexiste { text-align:center; padding:40px 18px; }
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">Tu<span class="qr">QR</span></div>
+  <small>Perfil de emergencia</small>
+</header>
+
+<main id="app"></main>
+
+<footer>Perfil de demostración · Proyecto de Mercadeo 11-5 · Los datos son inventados</footer>
+
+<script src="perfiles.js"></script>
+<script>
+(function () {
+  var app = document.getElementById('app');
+  var id = (new URLSearchParams(location.search).get('id') || '').toLowerCase();
+  var p = PERFILES[id];
+
+  function esc(t) { var d = document.createElement('div'); d.textContent = t; return d.innerHTML; }
+
+  if (!p) {
+    app.innerHTML = '<div class="card noexiste"><div class="nombre">Pulsera no activada</div>' +
+      '<p class="sub">Este código TuQR todavía no tiene un perfil. Si usted es el dueño, escanee su tarjeta de activación.</p></div>';
+    return;
+  }
+
+  var iniciales = p.nombre.split(' ').map(function (x) { return x[0]; }).slice(0, 2).join('');
+
+  var contactos = p.contactos.map(function (c) {
+    var num = c.telefono.replace(/\D/g, '');
+    return '<div class="contacto"><div class="val">' + esc(c.nombre) + '</div>' +
+      '<div class="botones">' +
+      '<a class="btn llamar" href="tel:' + num + '">Llamar</a>' +
+      '<a class="btn wa" href="https://wa.me/506' + num + '">WhatsApp</a>' +
+      '</div></div>';
+  }).join('');
+
+  app.innerHTML =
+    '<div class="aviso">Si encontró a esta persona, por favor llame a su contacto de emergencia.</div>' +
+    '<div class="card persona"><div class="avatar" style="background:' + p.color + '">' + esc(iniciales) + '</div>' +
+      '<div><div class="nombre">' + esc(p.nombre) + '</div><div class="sub">' + esc(p.edad) + ' · ' + esc(p.modelo) + '</div></div></div>' +
+    '<div class="card">' +
+      '<div class="dato"><div class="etq">Alergias</div><div class="val">' + esc(p.alergias) + '</div></div>' +
+      '<div class="dato"><div class="etq">Alerta médica</div><div class="val">' + esc(p.alerta) + '</div></div>' +
+    '</div>' +
+    '<div class="card"><div class="etq">Contacto de emergencia</div>' + contactos + '</div>' +
+    '<div class="card privado" id="bloqueado">' +
+      '<h2>Información privada</h2>' +
+      '<p>Medicamentos, condiciones médicas e indicaciones especiales. Solo la familia puede verla.</p>' +
+      '<div class="fila"><input type="password" id="clave" placeholder="Contraseña" inputmode="numeric" aria-label="Contraseña">' +
+      '<button class="btn entrar" id="entrar">Ingresar</button></div>' +
+      '<div class="error" id="error">Contraseña incorrecta</div>' +
+    '</div>' +
+    '<div class="card oculto" id="abierto">' +
+      '<div class="etq" style="color:#0E7C7B">Nivel privado desbloqueado</div>' +
+      '<div class="dato"><div class="etq">Medicamentos</div><div class="val">' + esc(p.privado.medicamentos) + '</div></div>' +
+      '<div class="dato"><div class="etq">Condiciones médicas</div><div class="val">' + esc(p.privado.condiciones) + '</div></div>' +
+      '<div class="dato"><div class="etq">Indicaciones especiales</div><div class="val">' + esc(p.privado.indicaciones) + '</div></div>' +
+    '</div>';
+
+  function entrar() {
+    if (document.getElementById('clave').value === p.clave) {
+      document.getElementById('bloqueado').classList.add('oculto');
+      document.getElementById('abierto').classList.remove('oculto');
+    } else {
+      document.getElementById('error').style.display = 'block';
+    }
+  }
+  document.getElementById('entrar').addEventListener('click', entrar);
+  document.getElementById('clave').addEventListener('keydown', function (e) { if (e.key === 'Enter') entrar(); });
+})();
+</script>
+</body>
+</html>
